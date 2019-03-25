@@ -21,11 +21,8 @@ namespace Extensions.ML
         {
             _mlContextOptions = mlContextOptions.Value;
             _predictionEngineOptions = predictionEngineOptions.Value;
-  
-            using (var fileStream = File.OpenRead(_predictionEngineOptions.ModelPath))
-            {
-                Model = _mlContextOptions.MLContext.Model.Load(fileStream);
-            }
+ 
+            Model = _predictionEngineOptions.CreateModel(_mlContextOptions.MLContext);
 
             var predictionEnginePolicy = new PredictionEnginePoolPolicy<TData, TPrediction>(_mlContextOptions.MLContext, Model);
             _predictionEnginePool = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(predictionEnginePolicy);
