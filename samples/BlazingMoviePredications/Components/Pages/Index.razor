@@ -1,5 +1,40 @@
 ﻿@page "/"
+@inject IProfileService Profiles
 
-<h1>Hello, world!</h1>
+<h1><span class="glyphicon glyphicon-film"></span> Movie Recommender</h1>
+<hr />
+<h3>Who's watching?</h3>
+<br />
 
-Welcome to your new app.
+<div class="row">
+    @foreach (var profile in profiles)
+    {
+        <div class="col-sm-3">
+            <div class="card">
+                <div class="card-block">
+                    <img src="/images/@profile.ProfileImageName" width="100" height="100" align="bottom" class="img-circle" />
+                    <br /> <br>
+                    <a href="/Watched/@profile.ProfileID" style="font-size:26px" class="card-title">@profile.ProfileName</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<br />
+<br />
+<hr />
+<a class="btn breadcrumb">
+    <span class="glyphicon glyphicon-dashboard"></span> Manage Profiles
+</a>
+
+@functions {
+    List<Profile> profiles;
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        profiles = Profiles.Profiles;
+    }
+}
+

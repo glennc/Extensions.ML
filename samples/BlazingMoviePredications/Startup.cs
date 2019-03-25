@@ -1,22 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using BlazingMoviePredications.Components;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BlazingMoviePredications.Components;
-using BlazingMoviePredications.Services;
+using Extensions.ML;
 
 namespace BlazingMoviePredications
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
@@ -24,7 +16,9 @@ namespace BlazingMoviePredications
 
             services.AddRazorComponents();
 
-            services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<IProfileService, ProfileService>();
+            services.AddSingleton<IMovieService, MovieService>();
+            services.AddPredictionEngine<MovieRating, MovieRatingPrediction>("Content\\model.zip");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +41,7 @@ namespace BlazingMoviePredications
             {
                 routes.MapRazorPages();
                 routes.MapComponentHub<App>("app");
+                routes.MapFallbackToPage("/Index");
             });
         }
     }

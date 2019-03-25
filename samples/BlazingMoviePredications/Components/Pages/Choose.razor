@@ -1,0 +1,39 @@
+﻿@page "/Choose"
+@inject IMovieService Movies
+
+<h1><span class="glyphicon glyphicon-film"></span> Movie Recommender</h1>
+
+<h3>Pick the movie you best liked in the past?</h3>
+
+<div class="row">
+    @foreach (var movie in movies)
+    {
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">@movie.MovieName</h3>
+                    <a href="/Recommend/@movie.MovieID" class="btn btn-primary">Choose me</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+<div class="form-row">
+    <a href="/Choose" class="btn btn-info" id="select">
+        <span class="glyphicon glyphicon-ok"></span> Recommend Movies
+    </a>
+</div>
+
+@functions {
+    IEnumerable<Movie> movies;
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+        movies = Movies.GetSomeSuggestions();
+    }
+}
+
+

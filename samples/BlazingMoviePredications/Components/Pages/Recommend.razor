@@ -1,0 +1,140 @@
+﻿@page "/Recommend/{id:int}"
+@using Extensions.ML
+@inject IMovieService Movies
+@inject IProfileService Profiles
+@inject PredictionEnginePool<MovieRating, MovieRatingPrediction> PredictionEnginePool
+
+<div class="row">
+    <div class="col-sm-9">
+
+        <h1><span class="glyphicon glyphicon-film"></span> Movie Recommender</h1>
+    </div>
+
+    <div class="col-sm-3">
+        <img src="/images/@profile.ProfileImageName" width="50" height="50" align="bottom" class="img-rounded" title="@profile.ProfileName profile" />
+        <h4> @profile.ProfileName </h4>
+    </div>
+</div>
+<hr />
+
+<br />
+<h3 style="color:brown"><b>Your Recently Watched Movies</b></h3>
+<div class="row">
+    @foreach (var movie in watchedMovies)
+    {
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">@movie.MovieName</h3>
+                    @{
+                        bool thumbsup = false;
+                        foreach ((int movieId, int movieRating) in profile.ProfileMovieRatings)
+                        {
+                            if (movieId == movie.MovieID)
+                            {
+                                if (movieRating >= 4)
+                                {
+                                    thumbsup = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    @if (thumbsup)
+                    {
+                        <span class="glyphicon glyphicon-thumbs-up" />
+                    }
+                    else
+                    {
+                        <span class="glyphicon glyphicon-thumbs-down" />
+                    }
+                    <a href="/Watch" class="btn-xs btn-primary">Watch Again</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+<h3 style="color:brown"><b>All-Time Top Box-Office movies (Recommended)</b></h3>
+<div class="row">
+    @foreach (var movie in trendingMovies)
+    {
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">@movie.MovieName</h3>
+                    @{
+                        foreach ((int movieId, float normalizedScore) in movieRatings)
+                        {
+                            if (movieId == movie.MovieID)
+                            {
+
+                                var formatted = normalizedScore.ToString("0.##\\%");
+                                <span class="glyphicon glyphicon-fire"></span>@formatted;
+                            }
+                        }
+                    }
+                    <a href="/Watch/Movies" class="btn-xs btn-primary">Play Movie</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<br />
+<hr />
+<a href="/Recommend/{profile.ProfileID}" class="btn breadcrumb" id="select">
+    <span class="glyphicon glyphicon-fire"></span> Recommended
+</a>
+<a href="/" class="btn breadcrumb" id="select">
+    <span class="glyphicon glyphicon-dashboard"></span> Switch Profiles
+</a>
+
+@functions {
+    [Parameter] int Id { get; set; }
+
+    Profile profile;
+    List<Movie> watchedMovies;
+    int rating;
+    List<Movie> trendingMovies;
+    List<(int movieId, float normalizedScore)> movieRatings;
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        profile = Profiles.GetProfileByID(Id);
+
+        watchedMovies = new List<Movie>();
+
+        foreach ((int movieId, int movieRating) in Profiles.GetProfileWatchedMovies(Id))
+        {
+            watchedMovies.Add(Movies.Get(movieId));
+        }
+
+        movieRatings = new List<(int movieId, float normalizedScore)>();
+        foreach (var movie in Movies.GetTrendingMovies)
+        {
+            // Call the Rating Prediction for each movie prediction
+            var prediction = PredictionEnginePool.Predict(new MovieRating
+            {
+                userId = Id.ToString(),
+                movieId = movie.MovieID.ToString()
+            });
+
+            // Normalize the prediction scores for the "ratings" b/w 0 - 100
+            float normalizedscore = Sigmoid(prediction.Score);
+
+            // Add the score for recommendation of each movie in the trending movie list
+            movieRatings.Add((movie.MovieID, normalizedscore));
+        }
+
+        trendingMovies = Movies.GetTrendingMovies;
+    }
+
+    float Sigmoid(float x)
+    {
+        return (float) (100/(1 + Math.Exp(-x)));
+    }
+}

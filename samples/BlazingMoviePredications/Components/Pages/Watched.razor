@@ -1,0 +1,96 @@
+﻿@page "/watched/{id:int}"
+@inject IProfileService Profile
+@inject IMovieService Movies
+
+<div class="row">
+    <div class="col-sm-9">
+
+        <h1><span class="glyphicon glyphicon-film"></span> Movie Recommender</h1>
+    </div>
+
+    <div class="col-sm-3">
+        <img src="/images/@profile.ProfileImageName" width="50" height="50" align="bottom" class="img-rounded" title="@profile.ProfileName profile" />
+        <h4> @profile.ProfileName </h4>
+    </div>
+</div>
+<hr />
+
+<br />
+<h3 style="color:brown"><b>Your Recently Watched Movies</b></h3>
+<div class="row">
+    @foreach (var movie in watchedMovies)
+    {
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">@movie.MovieName</h3>
+                    @{
+                        bool thumbsup = false;
+                        foreach ((int movieId, int movieRating) in profile.ProfileMovieRatings)
+                        {
+                            if (movieId == movie.MovieID)
+                            {
+                                if (movieRating >= 4)
+                                {
+                                    thumbsup = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    @if (thumbsup)
+                    {
+                        <span class="glyphicon glyphicon-thumbs-up" />
+                    }
+                    else
+                    {
+                        <span class="glyphicon glyphicon-thumbs-down" />
+                    }
+                    <a href="/Watch" class="btn-xs btn-primary">Watch Again</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+<h3 style="color:brown"><b>All-Time Top Box-Office movies</b></h3>
+<div class="row">
+    @foreach (var movie in trendingMovies)
+    {
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">@movie.MovieName</h3>
+                    <a href="/Watch" class="btn-xs btn-primary">Play Movie</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<br />
+<hr />
+<a href="/Recommend/@profile.ProfileID" class="btn breadcrumb" id="select">
+    <span class="glyphicon glyphicon-fire"></span> Recommended
+</a>
+<a href="/" class="btn breadcrumb" id="select">
+    <span class="glyphicon glyphicon-dashboard"></span> Switch Profiles
+</a>
+
+@functions {
+    [Parameter] int Id { get; set; }
+
+    Profile profile;
+    IEnumerable<Movie> trendingMovies;
+    IEnumerable<Movie> watchedMovies;
+
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        profile = Profile.GetProfileByID(Id);
+        watchedMovies = Profile.GetProfileWatchedMovies(Id).Select(t => Movies.Get(t.movieId)).ToList();
+        trendingMovies = Movies.GetTrendingMovies;
+    }
+}
