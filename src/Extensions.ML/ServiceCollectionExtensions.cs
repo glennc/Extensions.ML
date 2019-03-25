@@ -11,10 +11,10 @@ namespace Extensions.ML
             return services;
         }
 
-        public static IServiceCollection AddPredictionEngine<TData, TPrediction>(this IServiceCollection services, Action<PredictionEngineOptions<TData, TPrediction>> configure) where TData : class where TPrediction : class, new()
+        public static IServiceCollection AddPredictionEngine<TData, TPrediction>(this IServiceCollection services, Action<PredictionEnginePoolOptions<TData, TPrediction>> configure) where TData : class where TPrediction : class, new()
         {
             services.Configure(configure);
-            services.AddSingleton<IPredictionEngine<TData, TPrediction>, PooledPredictionEngine<TData, TPrediction>>();
+            services.AddSingleton<PredictionEnginePool<TData, TPrediction>, PredictionEnginePool<TData, TPrediction>>();
             return services;
         }
     }

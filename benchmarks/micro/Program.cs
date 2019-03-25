@@ -8,7 +8,6 @@ namespace micro
         static void Main(string[] args)
         {
             BenchmarkRunner.Run<CreationBenchmark>();
-            BenchmarkRunner.Run<PredictionBenchmark>();
         }
     }
 }

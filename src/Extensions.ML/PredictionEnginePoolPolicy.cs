@@ -3,14 +3,14 @@ using Microsoft.ML;
 
 namespace Extensions.ML
 {
-    public class PooledPredictionEnginePolicy<TData, TPrediction> : IPooledObjectPolicy<PredictionEngine<TData, TPrediction>>
+    public class PredictionEnginePoolPolicy<TData, TPrediction> : IPooledObjectPolicy<PredictionEngine<TData, TPrediction>>
                     where TData : class
                     where TPrediction : class, new()
     {
         private readonly MLContext _mlContext;
         private readonly ITransformer _model;
 
-        public PooledPredictionEnginePolicy(MLContext mlContext, ITransformer model)
+        public PredictionEnginePoolPolicy(MLContext mlContext, ITransformer model)
         {
             _mlContext = mlContext;
             _model = model;
