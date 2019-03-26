@@ -31,9 +31,7 @@ namespace Api
             services.AddMvc()
                     .AddNewtonsoftJson();
 
-            //TODO: Think about loading a model from something other than a zip, give an option for a stream
-            //or something of that sort.
-            services.AddPredictionEngine<SentimentObservation, SentimentPrediction>("SentimentModel.zip");
+            services.AddPredictionEngine<SentimentObservation, SentimentPrediction>(Configuration["ModelPath"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

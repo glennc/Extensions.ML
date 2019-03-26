@@ -12,17 +12,17 @@ namespace Api.Controllers
     [ApiController]
     public class PredictionController : ControllerBase
     {
-        private PredictionEnginePool<SentimentObservation, SentimentPrediction> _predictionEngine;
+        private PredictionEnginePool<SentimentObservation, SentimentPrediction> _predictionEnginePool;
 
-        public PredictionController(PredictionEnginePool<SentimentObservation, SentimentPrediction> predictionEngine)
+        public PredictionController(PredictionEnginePool<SentimentObservation, SentimentPrediction> predictionEnginePool)
         {
-            _predictionEngine = predictionEngine;
+            _predictionEnginePool = predictionEnginePool;
         }
 
         [HttpPost()]
-        public ActionResult<SentimentPrediction> GetSentiment([FromBody]SentimentObservation input)
+        public ActionResult<SentimentPrediction> GetSentiment(SentimentObservation input)
         {
-            return _predictionEngine.Predict(input);
+            return _predictionEnginePool.Predict(input);
         }
     }
 }

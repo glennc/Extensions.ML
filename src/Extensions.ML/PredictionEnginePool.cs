@@ -28,7 +28,6 @@ namespace Extensions.ML
             _predictionEnginePool = new DefaultObjectPool<PredictionEngine<TData, TPrediction>>(predictionEnginePolicy);
         }
 
-
         public ITransformer Model { get; private set; }
 
         public PredictionEngine<TData, TPrediction> GetPredictionEngine()
