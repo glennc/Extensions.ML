@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Api.Models;
 using Extensions.ML;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.ML;
 
 namespace Api.Controllers
 {
@@ -12,17 +13,23 @@ namespace Api.Controllers
     [ApiController]
     public class PredictionController : ControllerBase
     {
-        private PredictionEnginePool<SentimentObservation, SentimentPrediction> _predictionEnginePool;
+        private PredictionEnginePool<SentimentIssue, SentimentPrediction> _predictionEnginePool;
 
-        public PredictionController(PredictionEnginePool<SentimentObservation, SentimentPrediction> predictionEnginePool)
+        public PredictionController(PredictionEnginePool<SentimentIssue, SentimentPrediction> predictionEnginePool)
         {
             _predictionEnginePool = predictionEnginePool;
         }
 
-        [HttpPost()]
-        public ActionResult<SentimentPrediction> GetSentiment(SentimentObservation input)
+        [HttpGet()]
+        public ActionResult<SentimentPrediction> GetSentiment([FromQuery]SentimentIssue input)
         {
             return _predictionEnginePool.Predict(input);
+        }
+
+        [HttpGet("/new")]
+        public ActionResult<SentimentPrediction> GetNewSentiment([FromQuery]SentimentIssue input)
+        {
+            return _predictionEnginePool.Predict(input, "newModel");
         }
     }
 }
