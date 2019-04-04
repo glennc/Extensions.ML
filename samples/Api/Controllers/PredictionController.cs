@@ -29,7 +29,7 @@ namespace Api.Controllers
         [HttpGet("/new")]
         public ActionResult<SentimentPrediction> GetNewSentiment([FromQuery]SentimentIssue input)
         {
-            return _predictionEnginePool.Predict(input, "newModel");
+            return _predictionEnginePool.Predict("newModel", input);
         }
     }
 }

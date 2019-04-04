@@ -33,11 +33,9 @@ namespace Api
         {
             services.AddMvc();
 
-            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>("SentimentModel.zip", "oldModel");
-            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>("newModel", options => options.FromUri(Configuration["BlobUri"]));
-
-            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>(new Uri(Configuration["BlobUri"]), "newModel2");
-            services.AddPredictionEngine<SampleObservation, SamplePrediction>("DetoxModel.zip");
+            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>()
+                    .FromFile("SentimentModel.zip")
+                    .FromUri("newModel", Configuration["BlobUri"], TimeSpan.FromSeconds(15));
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
