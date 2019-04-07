@@ -1,11 +1,13 @@
 ﻿using Extensions.ML;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Extensions.ML
@@ -34,7 +36,7 @@ namespace Extensions.ML
             var sp = services.BuildServiceProvider();
 
             var loaderUnderTest = ActivatorUtilities.CreateInstance<FileModelLoader>(sp);
-            loaderUnderTest.Start("TestModelA.zip", false);
+            loaderUnderTest.Start("TestModel.zip", false);
 
             var model = loaderUnderTest.GetModel();
         }
@@ -42,29 +44,38 @@ namespace Extensions.ML
         //TODO: This is a quick test to give coverage of the main scenarios. Refactoring and re-implementing of tests should happen.
         //Right now this screams of probably flakeyness
         [Fact]
-        public void can_reload_model()
+        public async Task can_reload_model()
         {
             var services = new ServiceCollection()
                 .AddOptions()
                 .AddLogging();
             var sp = services.BuildServiceProvider();
 
-            var loaderUnderTest = ActivatorUtilities.CreateInstance<FileModelLoader>(sp);
-            loaderUnderTest.Start("TestModelA.zip", true);
+            var loaderUnderTest = ActivatorUtilities.CreateInstance<FileLoaderDouble>(sp);
+            loaderUnderTest.Start("testdata.txt", true);
 
             var changed = false;
             var changeTokenRegistration = ChangeToken.OnChange(
                         () => loaderUnderTest.GetReloadToken(),
                         () => changed = true);
 
-            var modelA = loaderUnderTest.GetModel();
-            File.Copy("TestModelB.zip", "TestModelA.zip", true);
-            System.Threading.Thread.Sleep(1000);
-            var modelB = loaderUnderTest.GetModel();
+            await File.WriteAllTextAsync("testdata.txt", "test");
+
+            await Task.Delay(1000);
 
             Assert.True(changed);
-            Assert.NotEqual(modelA, modelB);
         }
 
+
+        private class FileLoaderDouble : FileModelLoader
+        {
+            public FileLoaderDouble(IOptions<MLContextOptions> contextOptions, ILogger<FileModelLoader> logger) : base(contextOptions, logger)
+            {
+            }
+
+            internal override void LoadModel()
+            {
+            }
+        }
     }
 }

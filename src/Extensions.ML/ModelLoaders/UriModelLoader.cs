@@ -73,23 +73,12 @@ namespace Extensions.ML
                 cancellation.CancelAfter(_timeoutMilliseconds);
                 Logger.UriReloadBegin(_logger, _uri);
 
-                //TODO: Change logs to defines to avoid extra allocations.
-                using (var client = new HttpClient())
+                var eTagMatches = await MatchEtag(_uri, _eTag);
+                if (!eTagMatches)
                 {
-                    var headRequest = new HttpRequestMessage(HttpMethod.Head, _uri);
-                    var resp = client.SendAsync(headRequest).GetAwaiter().GetResult();
-
-                    if (resp.Headers.GetValues(ETAG_HEADER).First() != _eTag)
-                    {
-                        _logger.LogInformation("Reloading model for {uri}.", _uri);
-                        await LoadModel();
-                        var previousToken = Interlocked.Exchange(ref _reloadToken, new ModelReloadToken());
-                        previousToken.OnReload();
-                    }
-                    else
-                    {
-                        _logger.LogTrace("No changes in {uri} detected.", _uri);
-                    }
+                    await LoadModel();
+                    var previousToken = Interlocked.Exchange(ref _reloadToken, new ModelReloadToken());
+                    previousToken.OnReload();
                 }
 
                 Logger.UriReloadEnd(_logger, _uri, duration.Elapsed);
@@ -108,13 +97,24 @@ namespace Extensions.ML
             }
         }
 
+        internal virtual async Task<bool> MatchEtag(Uri uri, string eTag)
+        {
+            using (var client = new HttpClient())
+            {
+                var headRequest = new HttpRequestMessage(HttpMethod.Head, uri);
+                var resp = await client.SendAsync(headRequest);
+
+                return resp.Headers.GetValues(ETAG_HEADER).First() != eTag;
+            }
+        }
+
         internal void StartReloadTimer()
         {
             lock (_reloadTimerLock)
             {
                 if (_reloadTimer == null)
                 {
-                    _reloadTimer = new Timer(ReloadTimerTick, this, _timeoutMilliseconds, Timeout.Infinite);
+                    _reloadTimer = new Timer(ReloadTimerTick, this, _timerPeriod.Value.Milliseconds, Timeout.Infinite);
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace Extensions.ML
             }
         }
 
-        internal async Task<bool> LoadModel()
+        internal virtual async Task<bool> LoadModel()
         {
             //TODO: We probably need some sort of retry policy for this.
             try

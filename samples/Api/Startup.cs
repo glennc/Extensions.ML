@@ -35,7 +35,7 @@ namespace Api
 
             services.AddPredictionEngine<SentimentIssue, SentimentPrediction>()
                     .FromFile("SentimentModel.zip")
-                    .FromUri("newModel", Configuration["BlobUri"], TimeSpan.FromSeconds(15));
+                    .FromUri("newModel", Configuration["BlobUri"], TimeSpan.FromSeconds(10));
         }
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -59,14 +60,18 @@ namespace Extensions.ML
 
         private void _watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            _logger.LogInformation("Reloading model from file {filePath}", _filePath);
+            var timer = Stopwatch.StartNew();
+            Logger.FileReloadBegin(_logger, _filePath);
 
             var previousToken = Interlocked.Exchange(ref _reloadToken, new ModelReloadToken());
             lock (_lock)
             {
                 LoadModel();
+                Logger.ReloadingFile(_logger, _filePath, timer.Elapsed);
             }
             previousToken.OnReload();
+            timer.Stop();
+            Logger.FileReloadEnd(_logger, _filePath, timer.Elapsed);
         }
 
         public override IChangeToken GetReloadToken()
@@ -98,6 +103,46 @@ namespace Extensions.ML
         public void Dispose()
         {
             _watcher?.Dispose();
+        }
+
+        internal static class EventIds
+        {
+            public static readonly EventId FileReloadBegin = new EventId(100, "FileReloadBegin");
+            public static readonly EventId FileReloadEnd = new EventId(101, "FileReloadEnd");
+            public static readonly EventId FileReload = new EventId(102, "FileReload");
+        }
+
+        private static class Logger
+        {
+            private static readonly Action<ILogger, string, Exception> _fileLoadBegin = LoggerMessage.Define<string>(
+                LogLevel.Debug,
+                EventIds.FileReloadBegin,
+                "File reload for '{filePath}'");
+
+            private static readonly Action<ILogger, string, double, Exception> _fileLoadEnd = LoggerMessage.Define<string, double>(
+                LogLevel.Debug,
+                EventIds.FileReloadEnd,
+                "File reload for '{filePath}' completed after {ElapsedMilliseconds}ms");
+
+            private static readonly Action<ILogger, string, double, Exception> _fileReLoad = LoggerMessage.Define<string, double>(
+                LogLevel.Information,
+                EventIds.FileReloadEnd,
+                "Reloading file '{filePath}' completed after {ElapsedMilliseconds}ms");
+
+            public static void FileReloadBegin(ILogger logger, string filePath)
+            {
+                _fileLoadBegin(logger, filePath, null);
+            }
+
+            public static void FileReloadEnd(ILogger logger, string filePath, TimeSpan duration)
+            {
+                _fileLoadEnd(logger, filePath, duration.TotalMilliseconds, null);
+            }
+
+            public static void ReloadingFile(ILogger logger, string filePath, TimeSpan duration)
+            {
+                _fileReLoad(logger, filePath, duration.TotalMilliseconds, null);
+            }
         }
 
     }
