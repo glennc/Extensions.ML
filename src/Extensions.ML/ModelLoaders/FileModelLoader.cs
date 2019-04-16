@@ -66,6 +66,9 @@ namespace Extensions.ML
             var previousToken = Interlocked.Exchange(ref _reloadToken, new ModelReloadToken());
             lock (_lock)
             {
+                //TODO: We get here multiple times when you copy and paste a file
+                //because of the way file watchers work. Need to think through the
+                //ramifications.
                 LoadModel();
                 Logger.ReloadingFile(_logger, _filePath, timer.Elapsed);
             }
@@ -93,7 +96,7 @@ namespace Extensions.ML
             //Sleep to avoid some file system locking issues
             //TODO: The same thing occurs in configuration reload
             //we should make sure the sleeps are the same.
-            Thread.Sleep(10);
+            Thread.Sleep(50);
             using (var fileStream = File.OpenRead(_filePath))
             {
                 _model = _context.Model.Load(fileStream);

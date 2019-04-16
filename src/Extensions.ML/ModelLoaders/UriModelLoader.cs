@@ -104,7 +104,7 @@ namespace Extensions.ML
                 var headRequest = new HttpRequestMessage(HttpMethod.Head, uri);
                 var resp = await client.SendAsync(headRequest);
 
-                return resp.Headers.GetValues(ETAG_HEADER).First() != eTag;
+                return resp.Headers.GetValues(ETAG_HEADER).First() == eTag;
             }
         }
 

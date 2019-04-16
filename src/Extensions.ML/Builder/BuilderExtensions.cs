@@ -23,6 +23,11 @@ namespace Extensions.ML
             return builder.FromUri(modelName, uri, TimeSpan.FromMinutes(5));
         }
 
+        public static IPredictionEnginePoolBuilder<TData, TPrediction> FromUri<TData, TPrediction>(this IPredictionEnginePoolBuilder<TData, TPrediction> builder, string uri, TimeSpan period) where TData : class where TPrediction : class, new()
+        {
+            return builder.FromUri(string.Empty, new Uri(uri), period);
+        }
+
         public static IPredictionEnginePoolBuilder<TData, TPrediction> FromUri<TData, TPrediction>(this IPredictionEnginePoolBuilder<TData, TPrediction> builder, string modelName, string uri, TimeSpan period) where TData : class where TPrediction : class, new()
         {
             return builder.FromUri(modelName, new Uri(uri), period);

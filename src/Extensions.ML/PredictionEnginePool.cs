@@ -39,6 +39,27 @@ namespace Extensions.ML
             _namedPools = new Dictionary<string, PoolLoader<TData, TPrediction>>();
         }
 
+        /// <summary>
+        /// Get the Model used to create the pooled PredictionEngine.
+        /// </summary>
+        /// 
+        /// <param name="modelName"></param>
+        /// <returns></returns>
+        public ITransformer GetModel(string modelName)
+        {
+            return _namedPools[modelName].Loader.GetModel();
+        }
+
+        /// <summary>
+        /// Get the Model used to create the pooled PredictionEngine.
+        /// </summary>
+        /// <param name="modelName"></param>
+        /// <returns></returns>
+        public ITransformer GetModel()
+        {
+            return _defaultEnginePool.Loader.GetModel();
+        }
+
         public PredictionEngine<TData, TPrediction> GetPredictionEngine()
         {
             return GetPredictionEngine(string.Empty);

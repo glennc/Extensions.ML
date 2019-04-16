@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Api.Models;
 using Extensions.ML;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.ML;
 
 namespace Api.Controllers
@@ -14,10 +15,12 @@ namespace Api.Controllers
     public class PredictionController : ControllerBase
     {
         private PredictionEnginePool<SentimentIssue, SentimentPrediction> _predictionEnginePool;
+        private ILogger<PredictionController> _logger;
 
-        public PredictionController(PredictionEnginePool<SentimentIssue, SentimentPrediction> predictionEnginePool)
+        public PredictionController(PredictionEnginePool<SentimentIssue, SentimentPrediction> predictionEnginePool, ILogger<PredictionController> logger)
         {
             _predictionEnginePool = predictionEnginePool;
+            _logger = logger;
         }
 
         [HttpGet()]
