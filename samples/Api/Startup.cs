@@ -13,6 +13,12 @@ using Api.Models;
 
 namespace Api
 {
+
+    public interface IModelResolver
+    {
+        Task<object> GetModelAsync(string urlOrNameOrSomething);
+    }
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -27,9 +33,11 @@ namespace Api
         {
             services.AddMvc();
 
-            services.AddPredictionEngine<SentimentObservation, SentimentPrediction>(Configuration["ModelPath"]);
+            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>()
+                    .FromFile("SentimentModel.zip")
+                    .FromUri("newModel", Configuration["BlobUri"], TimeSpan.FromSeconds(10));
         }
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -37,13 +45,6 @@ namespace Api
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
 
             app.UseMvc();
         }

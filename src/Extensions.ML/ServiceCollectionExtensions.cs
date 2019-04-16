@@ -4,36 +4,28 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 
 namespace Extensions.ML
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPredictionEngine<TData, TPrediction>(this IServiceCollection services, string modelPath) where TData : class where TPrediction : class, new()
+
+        public static IPredictionEnginePoolBuilder<TData, TPrediction> AddPredictionEngine<TData, TPrediction>(this IServiceCollection services) where TData : class where TPrediction : class, new()
         {
-            services.AddPredictionEngine<TData, TPrediction>(options => options.CreateModel = (mlContext) => {
-                using (var fileStream = File.OpenRead(modelPath))
-                {
-                    return mlContext.Model.Load(fileStream);
-                }
-            });
-            return services;
+            services.AddPredictionEngineServices<TData, TPrediction>();
+            return new DefaultPredictionEnginePoolBuilder<TData, TPrediction>(services, string.Empty);
         }
 
-        public static IServiceCollection AddPredictionEngine<TData, TPrediction>(this IServiceCollection services, Stream modelStream) where TData : class where TPrediction : class, new()
+        internal static IServiceCollection AddPredictionEngineServices<TData, TPrediction>(this IServiceCollection services) where TData : class where TPrediction : class, new()
         {
-            services.AddPredictionEngine<TData, TPrediction>(options => options.CreateModel = (mlContext) => {
-                    return mlContext.Model.Load(modelStream);
-            });
-            return services;
-        }
-
-        public static IServiceCollection AddPredictionEngine<TData, TPrediction>(this IServiceCollection services, Action<PredictionEnginePoolOptions<TData, TPrediction>> configure) where TData : class where TPrediction : class, new()
-        {
-            services.Configure(configure);
+            services.AddLogging();
+            services.AddOptions();
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<MLContextOptions>, PostMLContextOptionsConfiguration>());
             services.AddSingleton<PredictionEnginePool<TData, TPrediction>, PredictionEnginePool<TData, TPrediction>>();
             return services;
         }
+
     }
 }

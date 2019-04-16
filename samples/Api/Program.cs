@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -17,6 +18,7 @@ namespace Api
 
         public static IWebHostBuilder CreateHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                //.ConfigureLogging((c, l) => l.ClearProviders())
                 .UseStartup<Startup>();
     }
 }

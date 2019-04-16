@@ -8,7 +8,12 @@ namespace Extensions.ML
     {
         public static TPrediction Predict<TData, TPrediction>(this PredictionEnginePool<TData, TPrediction> predictionEnginePool, TData dataSample) where TData : class where TPrediction : class, new()
         {
-            var predictionEngine = predictionEnginePool.GetPredictionEngine();
+            return predictionEnginePool.Predict(string.Empty, dataSample);
+        }
+
+        public static TPrediction Predict<TData, TPrediction>(this PredictionEnginePool<TData, TPrediction> predictionEnginePool, string modelName, TData dataSample) where TData : class where TPrediction : class, new()
+        {
+            var predictionEngine = predictionEnginePool.GetPredictionEngine(modelName);
 
             try
             {
@@ -16,7 +21,7 @@ namespace Extensions.ML
             }
             finally
             {
-                predictionEnginePool.ReturnPredictionEngine(predictionEngine);
+                predictionEnginePool.ReturnPredictionEngine(modelName, predictionEngine);
             }
         }
     }

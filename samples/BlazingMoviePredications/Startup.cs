@@ -18,7 +18,8 @@ namespace BlazingMoviePredications
 
             services.AddSingleton<IProfileService, ProfileService>();
             services.AddSingleton<IMovieService, MovieService>();
-            services.AddPredictionEngine<MovieRating, MovieRatingPrediction>("Content\\model.zip");
+            services.AddPredictionEngine<MovieRating, MovieRatingPrediction>()
+                    .FromFile("Content\\model.zip");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,10 +35,12 @@ namespace BlazingMoviePredications
                 app.UseHsts();
             }
 
+            app.UseRouting();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting(routes =>
+            app.UseEndpoints(routes =>
             {
                 routes.MapRazorPages();
                 routes.MapComponentHub<App>("app");
