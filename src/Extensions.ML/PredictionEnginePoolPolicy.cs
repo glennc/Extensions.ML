@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.ObjectPool;
 using Microsoft.ML;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Extensions.ML
 {
@@ -9,21 +12,25 @@ namespace Extensions.ML
     {
         private readonly MLContext _mlContext;
         private readonly ITransformer _model;
+        private readonly List<WeakReference> _references;
 
         public PredictionEnginePoolPolicy(MLContext mlContext, ITransformer model)
         {
             _mlContext = mlContext;
             _model = model;
+            _references = new List<WeakReference>();
         }
 
         public PredictionEngine<TData, TPrediction> Create()
         {
-            return _model.CreatePredictionEngine<TData, TPrediction>(_mlContext);
+            var engine = _model.CreatePredictionEngine<TData, TPrediction>(_mlContext);
+            _references.Add(new WeakReference(engine));
+            return engine;
         }
 
         public bool Return(PredictionEngine<TData, TPrediction> obj)
         {
-            return obj != null;
+            return _references.Any(x => x.Target == obj);
         }
     }
 }
