@@ -44,7 +44,7 @@ namespace Extensions.ML
         {
             _timerPeriod = period;
             _uri = uri;
-            if (LoadModel().GetAwaiter().GetResult())
+            if (LoadModel().ConfigureAwait(false).GetAwaiter().GetResult())
             {
                 StartReloadTimer();
             }
@@ -114,7 +114,7 @@ namespace Extensions.ML
             {
                 if (_reloadTimer == null)
                 {
-                    _reloadTimer = new Timer(ReloadTimerTick, this, _timerPeriod.Value.Milliseconds, Timeout.Infinite);
+                    _reloadTimer = new Timer(ReloadTimerTick, this, Convert.ToInt32(_timerPeriod.Value.TotalMilliseconds), Timeout.Infinite);
                 }
             }
         }
