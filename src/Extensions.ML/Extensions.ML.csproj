@@ -10,7 +10,6 @@
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />
     <PackageReference Include="Microsoft.ML" Version="1.0.0-preview" />
-    <PackageReference Include="Microsoft.ML.FastTree" Version="1.0.0-preview" />
   </ItemGroup>
 
 </Project>

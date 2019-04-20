@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="1.0.0-preview" />
     <ProjectReference Include="..\..\src\Extensions.ML\Extensions.ML.csproj" />
   </ItemGroup>
 
