@@ -22,6 +22,7 @@ namespace Extensions.ML
         private MLContext _context;
 
         private object _lock = new object();
+        private DataViewSchema _inputSchema;
 
         public FileModelLoader(IOptions<MLContextOptions> contextOptions, ILogger<FileModelLoader> logger)
         {
@@ -99,7 +100,7 @@ namespace Extensions.ML
             Thread.Sleep(50);
             using (var fileStream = File.OpenRead(_filePath))
             {
-                _model = _context.Model.Load(fileStream);
+                _model = _context.Model.Load(fileStream, out _inputSchema);
             }
         }
 

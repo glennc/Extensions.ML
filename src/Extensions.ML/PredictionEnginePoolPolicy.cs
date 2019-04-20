@@ -23,7 +23,7 @@ namespace Extensions.ML
 
         public PredictionEngine<TData, TPrediction> Create()
         {
-            var engine = _model.CreatePredictionEngine<TData, TPrediction>(_mlContext);
+            var engine = _mlContext.Model.CreatePredictionEngine<TData, TPrediction>(_model);
             _references.Add(new WeakReference(engine));
             return engine;
         }

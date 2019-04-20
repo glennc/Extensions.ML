@@ -30,6 +30,7 @@ namespace Extensions.ML
         private CancellationTokenSource _stopping;
         private bool _started;
         private int _timeoutMilliseconds = 60000;
+        private DataViewSchema _inputSchema;
 
         public UriModelLoader(IOptions<MLContextOptions> contextOptions, ILogger<UriModelLoader> logger)
         {
@@ -138,7 +139,7 @@ namespace Extensions.ML
                     var resp = await client.GetAsync(_uri);
                     using (var stream = await resp.Content.ReadAsStreamAsync())
                     {
-                        _model = _context.Model.Load(stream);
+                        _model = _context.Model.Load(stream, out _inputSchema);
                     }
 
                     if (resp.Headers.Contains(ETAG_HEADER))

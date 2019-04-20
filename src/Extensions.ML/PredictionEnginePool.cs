@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.DataView;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.ML;
 using System;
 using System.Collections.Concurrent;
