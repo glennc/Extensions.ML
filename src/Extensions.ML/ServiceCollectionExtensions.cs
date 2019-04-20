@@ -12,7 +12,7 @@ namespace Extensions.ML
     public static class ServiceCollectionExtensions
     {
 
-        public static IPredictionEnginePoolBuilder<TData, TPrediction> AddPredictionEngine<TData, TPrediction>(this IServiceCollection services) where TData : class where TPrediction : class, new()
+        public static IPredictionEnginePoolBuilder<TData, TPrediction> AddPredictionEnginePool<TData, TPrediction>(this IServiceCollection services) where TData : class where TPrediction : class, new()
         {
             services.AddPredictionEngineServices<TData, TPrediction>();
             return new DefaultPredictionEnginePoolBuilder<TData, TPrediction>(services, string.Empty);

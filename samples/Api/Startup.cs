@@ -33,7 +33,7 @@ namespace Api
         {
             services.AddMvc();
 
-            services.AddPredictionEngine<SentimentIssue, SentimentPrediction>()
+            services.AddPredictionEnginePool<SentimentIssue, SentimentPrediction>()
                     .FromFile("SentimentModel.zip")
                     .FromUri("newModel", Configuration["BlobUri"], TimeSpan.FromSeconds(10));
         }
